@@ -27,7 +27,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.codescape.themovie.R
@@ -212,7 +212,10 @@ fun SearchScreenContent(
             )
         }
     }
-    LaunchedEffect(Unit) {
-        // focusRequester.requestFocus()
+    LifecycleResumeEffect(Unit) {
+        focusRequester.requestFocus()
+        onPauseOrDispose {
+            focusRequester.freeFocus()
+        }
     }
 }

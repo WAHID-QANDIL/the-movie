@@ -40,7 +40,7 @@ class AppModule {
                 connectTimeout(API_TIMEOUT, TimeUnit.SECONDS)
                 readTimeout(API_TIMEOUT, TimeUnit.SECONDS)
                 writeTimeout(API_TIMEOUT, TimeUnit.SECONDS)
-                addInterceptor { chain ->
+                addNetworkInterceptor { chain ->
                     val originalRequest = chain.request()
                     val newRequest =
                         originalRequest
