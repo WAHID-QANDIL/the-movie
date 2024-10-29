@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">The Movie</string>
+
+    <!-- Home screen -->
+    <string name="home_search">Search</string>
+    <string name="home_error_title">Oops! Something went wrong</string>
+    <string name="home_error_button">Try again</string>
+    <string name="home_favorites">Favorites</string>
+    <string name="home_no_favorites_title">No favorites yet</string>
+    <string name="home_no_favorites_button">Search movies</string>
+
+    <!-- Search screen -->
+    <string name="search_title">Search</string>
+    <string name="search_clear">Clear</string>
+    <string name="search_back">Back</string>
+</resources>
