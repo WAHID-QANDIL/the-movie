@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,7 +44,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.codescape.themovie.R
@@ -89,6 +89,7 @@ fun SearchScreenContent(
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    var isFocused by remember { mutableStateOf(false) }
     LazyVerticalGrid(
         modifier = modifier,
         columns = GridCells.Fixed(3),
@@ -110,7 +111,6 @@ fun SearchScreenContent(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                var isFocused by remember { mutableStateOf(false) }
                 Icon(
                     modifier =
                         Modifier
@@ -212,10 +212,12 @@ fun SearchScreenContent(
             )
         }
     }
-    LifecycleResumeEffect(Unit) {
+    DisposableEffect(Unit) {
         focusRequester.requestFocus()
-        onPauseOrDispose {
-            focusRequester.freeFocus()
+        onDispose {
+            if (isFocused) {
+                focusRequester.freeFocus()
+            }
         }
     }
 }
