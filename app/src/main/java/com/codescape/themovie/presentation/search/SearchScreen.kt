@@ -27,7 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +51,7 @@ import com.codescape.themovie.domain.model.Movie
 import com.codescape.themovie.presentation.home.component.MovieCard
 import com.codescape.themovie.presentation.theme.TheMovieTheme
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalSharedTransitionApi::class, FlowPreview::class)
 @Composable
@@ -212,12 +213,8 @@ fun SearchScreenContent(
             )
         }
     }
-    DisposableEffect(Unit) {
+    LaunchedEffect(focusRequester) {
+        delay(200)
         focusRequester.requestFocus()
-        onDispose {
-            if (isFocused) {
-                focusRequester.freeFocus()
-            }
-        }
     }
 }
