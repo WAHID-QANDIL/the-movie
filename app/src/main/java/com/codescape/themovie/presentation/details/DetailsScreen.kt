@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +17,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -146,22 +146,25 @@ fun DetailsScreenContent(
                     )
         ) {
             val (backRef, titleRef, posterRef, releaseDateRef, overviewRef, favoriteRef) = createRefs()
-            Icon(
+            IconButton(
                 modifier =
                     Modifier
                         .padding(end = 16.dp)
-                        .clickable(
-                            onClick =
-                                dropUnlessResumed {
-                                    onClickBack()
-                                }
-                        ).constrainAs(backRef) {
+                        .constrainAs(backRef) {
                             top.linkTo(parent.top)
                             start.linkTo(parent.start)
                         },
-                imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                contentDescription = stringResource(R.string.search_back),
-                tint = Color.White
+                onClick =
+                    dropUnlessResumed {
+                        onClickBack()
+                    },
+                content = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                        contentDescription = stringResource(R.string.search_back),
+                        tint = Color.White
+                    )
+                }
             )
             Text(
                 modifier =
@@ -238,23 +241,28 @@ fun DetailsScreenContent(
                         .aspectRatio(0.65f)
                         .clip(TheMovieTheme.shapes.large)
             )
-            Icon(
+            IconButton(
                 modifier =
                     Modifier
                         .constrainAs(favoriteRef) {
                             top.linkTo(parent.top)
                             end.linkTo(parent.end)
-                        }.clickable {
-                            onClickFavorite()
                         },
-                imageVector =
-                    if (isFavoriteMovie) {
-                        Icons.Filled.Favorite
-                    } else {
-                        Icons.Outlined.FavoriteBorder
-                    },
-                contentDescription = "Favorite",
-                tint = TheMovieTheme.colors.error
+                onClick = {
+                    onClickFavorite()
+                },
+                content = {
+                    Icon(
+                        imageVector =
+                            if (isFavoriteMovie) {
+                                Icons.Filled.Favorite
+                            } else {
+                                Icons.Outlined.FavoriteBorder
+                            },
+                        contentDescription = "Favorite",
+                        tint = TheMovieTheme.colors.error
+                    )
+                }
             )
             Text(
                 modifier =

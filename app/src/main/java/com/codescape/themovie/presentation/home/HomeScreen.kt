@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Search
@@ -198,20 +199,22 @@ fun HomeScreenContent(
                             color = TheMovieTheme.colors.text
                         )
                     }
-                    Icon(
+                    IconButton(
                         modifier =
                             Modifier
                                 .align(Alignment.CenterEnd)
-                                .padding(end = 24.dp)
-                                .clickable(
-                                    onClick =
-                                        dropUnlessResumed {
-                                            onClickSearch()
-                                        }
-                                ),
-                        imageVector = Icons.Default.Search,
-                        contentDescription = stringResource(R.string.home_search),
-                        tint = Color.White
+                                .padding(end = 24.dp),
+                        onClick =
+                            dropUnlessResumed {
+                                onClickSearch()
+                            },
+                        content = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = stringResource(R.string.home_search),
+                                tint = Color.White
+                            )
+                        }
                     )
                 }
             }

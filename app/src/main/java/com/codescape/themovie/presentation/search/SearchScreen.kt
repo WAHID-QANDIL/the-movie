@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -51,7 +52,6 @@ import com.codescape.themovie.domain.model.Movie
 import com.codescape.themovie.presentation.home.component.MovieCard
 import com.codescape.themovie.presentation.theme.TheMovieTheme
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalSharedTransitionApi::class, FlowPreview::class)
 @Composable
@@ -112,19 +112,18 @@ fun SearchScreenContent(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    modifier =
-                        Modifier
-                            .padding(end = 16.dp)
-                            .clickable(
-                                onClick =
-                                    dropUnlessResumed {
-                                        onClickBack()
-                                    }
-                            ),
-                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = stringResource(R.string.search_back),
-                    tint = Color.White
+                IconButton(
+                    modifier = Modifier.padding(end = 16.dp),
+                    onClick = dropUnlessResumed {
+                        onClickBack()
+                    },
+                    content = {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = stringResource(R.string.search_back),
+                            tint = Color.White
+                        )
+                    }
                 )
                 OutlinedTextField(
                     modifier =
@@ -158,15 +157,18 @@ fun SearchScreenContent(
                         )
                     },
                     trailingIcon = {
-                        Icon(
-                            modifier =
-                                Modifier.clickable {
-                                    onClear()
-                                    focusManager.clearFocus()
-                                },
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = stringResource(R.string.search_clear),
-                            tint = TheMovieTheme.colors.onOutline
+                        IconButton(
+                            onClick = {
+                                onClear()
+                                focusManager.clearFocus()
+                            },
+                            content = {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = stringResource(R.string.search_clear),
+                                    tint = TheMovieTheme.colors.onOutline
+                                )
+                            }
                         )
                     },
                     placeholder = {
@@ -187,6 +189,9 @@ fun SearchScreenContent(
                             }
                         )
                 )
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
             }
         }
         items(
@@ -212,9 +217,5 @@ fun SearchScreenContent(
                 movie = movie
             )
         }
-    }
-    LaunchedEffect(focusRequester) {
-        delay(200)
-        focusRequester.requestFocus()
     }
 }
