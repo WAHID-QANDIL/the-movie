@@ -114,9 +114,10 @@ fun SearchScreenContent(
             ) {
                 IconButton(
                     modifier = Modifier.padding(end = 16.dp),
-                    onClick = dropUnlessResumed {
-                        onClickBack()
-                    },
+                    onClick =
+                        dropUnlessResumed {
+                            onClickBack()
+                        },
                     content = {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,

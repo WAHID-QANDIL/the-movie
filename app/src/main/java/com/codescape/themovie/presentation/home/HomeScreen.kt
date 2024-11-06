@@ -1,8 +1,10 @@
 package com.codescape.themovie.presentation.home
 
 import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.BoundsTransform
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -312,7 +314,15 @@ fun HomeScreenContent(
                                                                         type = SharedElementType.TITLE
                                                                     )
                                                             ),
-                                                        animatedVisibilityScope = animatedVisibilityScope
+                                                        animatedVisibilityScope = animatedVisibilityScope,
+                                                        boundsTransform =
+                                                            BoundsTransform { initialBounds, targetBounds ->
+                                                                keyframes {
+                                                                    durationMillis = 1000
+                                                                    initialBounds at 0
+                                                                    targetBounds at 1000
+                                                                }
+                                                            }
                                                     )
                                                 }
                                             },
@@ -405,6 +415,14 @@ fun HomeScreenContent(
                                                                         )
                                                                 ),
                                                             animatedVisibilityScope = animatedVisibilityScope,
+                                                            boundsTransform =
+                                                                BoundsTransform { initialBounds, targetBounds ->
+                                                                    keyframes {
+                                                                        durationMillis = 1000
+                                                                        initialBounds at 0
+                                                                        targetBounds at 1000
+                                                                    }
+                                                                },
                                                             renderInOverlayDuringTransition = true
                                                         )
                                                     }

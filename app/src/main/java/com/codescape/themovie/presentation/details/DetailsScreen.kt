@@ -1,8 +1,10 @@
 package com.codescape.themovie.presentation.details
 
 import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.BoundsTransform
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -188,7 +190,15 @@ fun DetailsScreenContent(
                                                     type = SharedElementType.TITLE
                                                 )
                                         ),
-                                    animatedVisibilityScope = animatedVisibilityScope
+                                    animatedVisibilityScope = animatedVisibilityScope,
+                                    boundsTransform =
+                                        BoundsTransform { initialBounds, targetBounds ->
+                                            keyframes {
+                                                durationMillis = 1000
+                                                initialBounds at 0
+                                                targetBounds at 1000
+                                            }
+                                        }
                                 )
                             }
                         },
@@ -230,7 +240,15 @@ fun DetailsScreenContent(
                                                     type = SharedElementType.POSTER
                                                 )
                                         ),
-                                    animatedVisibilityScope = animatedVisibilityScope
+                                    animatedVisibilityScope = animatedVisibilityScope,
+                                    boundsTransform =
+                                        BoundsTransform { initialBounds, targetBounds ->
+                                            keyframes {
+                                                durationMillis = 1000
+                                                initialBounds at 0
+                                                targetBounds at 1000
+                                            }
+                                        }
                                 )
                             }
                         }.constrainAs(posterRef) {

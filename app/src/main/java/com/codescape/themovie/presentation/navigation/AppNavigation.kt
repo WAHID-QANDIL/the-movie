@@ -56,7 +56,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                         towards = AnimatedContentTransitionScope.SlideDirection.End,
                         animationSpec =
                             tween(
-                                durationMillis = 500,
+                                durationMillis = 1000,
                                 easing = FastOutSlowInEasing
                             ),
                         initialOffset = { x -> -x }
@@ -67,7 +67,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                         towards = AnimatedContentTransitionScope.SlideDirection.Start,
                         animationSpec =
                             tween(
-                                durationMillis = 500,
+                                durationMillis = 1000,
                                 easing = FastOutSlowInEasing
                             ),
                         targetOffset = { x -> x }
@@ -78,7 +78,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                         towards = AnimatedContentTransitionScope.SlideDirection.End,
                         animationSpec =
                             tween(
-                                durationMillis = 500,
+                                durationMillis = 1000,
                                 easing = FastOutSlowInEasing
                             ),
                         initialOffset = { x -> x }
@@ -89,7 +89,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                         towards = AnimatedContentTransitionScope.SlideDirection.Start,
                         animationSpec =
                             tween(
-                                durationMillis = 500,
+                                durationMillis = 1000,
                                 easing = FastOutSlowInEasing
                             ),
                         targetOffset = { x -> -x }
