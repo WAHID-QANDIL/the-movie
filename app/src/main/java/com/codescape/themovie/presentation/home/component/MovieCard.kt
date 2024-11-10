@@ -4,18 +4,20 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.RemeasureToBounds
 import androidx.compose.animation.core.ExperimentalAnimationSpecApi
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -24,7 +26,6 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import com.codescape.themovie.domain.model.Movie
 import com.codescape.themovie.presentation.modifier.conditional
@@ -46,6 +47,7 @@ fun MovieCard(
     origin: String = "",
     movie: Movie
 ) {
+    val imageKey = remember { movie.id.toString() }
     val isPreview = LocalInspectionMode.current
     val cornerSize =
         animatedVisibilityScope?.transition?.animateDp(
@@ -63,13 +65,15 @@ fun MovieCard(
                 ImageRequest
                     .Builder(LocalContext.current)
                     .data(movie.posterPath)
-                    .decoderFactory(SvgDecoder.Factory())
-                    .crossfade(true)
+                    .placeholderMemoryCacheKey(imageKey)
+                    .memoryCacheKey(imageKey)
                     .build(),
             contentScale = ContentScale.Companion.Crop,
             contentDescription = "Icon",
+            clipToBounds = true,
             modifier =
                 modifier
+                    .aspectRatio(0.65f)
                     .conditional(
                         condition = isPreview,
                         ifTrue = {
@@ -80,8 +84,8 @@ fun MovieCard(
                         animatedVisibilityScope = animatedVisibilityScope
                     ) { sharedTransitionScope, animatedVisibilityScope ->
                         with(sharedTransitionScope) {
-                            sharedElement(
-                                state =
+                            sharedBounds(
+                                sharedContentState =
                                     rememberSharedContentState(
                                         key =
                                             SharedElementKey(
@@ -98,11 +102,10 @@ fun MovieCard(
                                 boundsTransform = { initialBounds, targetBounds ->
                                     tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
                                 },
-                                placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
+                                resizeMode = RemeasureToBounds
                             )
                         }
-                    }.fillMaxSize()
-                    .clip(MaterialTheme.shapes.medium)
+                    }.clip(MaterialTheme.shapes.medium)
         )
     }
 }

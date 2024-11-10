@@ -1,7 +1,7 @@
 package com.codescape.themovie.presentation.home
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.SharedTransitionScope.ResizeMode
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -293,9 +293,6 @@ fun HomeScreenContent(
                                     color = TheMovieTheme.colors.text,
                                     modifier =
                                         Modifier
-                                            .fillMaxWidth()
-                                            .padding(top = 4.dp)
-                                            .maskClip(RectangleShape)
                                             .sharedTransition(
                                                 sharedTransitionScope = sharedTransitionScope,
                                                 animatedVisibilityScope = animatedVisibilityScope
@@ -312,12 +309,14 @@ fun HomeScreenContent(
                                                                     )
                                                             ),
                                                         animatedVisibilityScope = animatedVisibilityScope,
-                                                        resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
+                                                        resizeMode = ResizeMode.RemeasureToBounds,
                                                         boundsTransform = { _, _ ->
                                                             tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
                                                         }
                                                     )
-                                                }
+                                                }.fillMaxWidth()
+                                                    .padding(top = 4.dp)
+                                                    .maskClip(RectangleShape)
                                             },
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,

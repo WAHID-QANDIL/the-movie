@@ -2,7 +2,7 @@ package com.codescape.themovie.presentation.details
 
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.SharedTransitionScope.ResizeMode
 import androidx.compose.animation.core.ExperimentalAnimationSpecApi
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateDp
@@ -116,6 +116,7 @@ fun DetailsScreenContent(
                     EnterExitState.PostExit -> 24.dp
                 }
             }
+        val imageKey = remember { movie.id.toString() }
         AsyncImage(
             model =
                 ImageRequest
@@ -202,7 +203,7 @@ fun DetailsScreenContent(
                                                 )
                                         ),
                                     animatedVisibilityScope = animatedVisibilityScope,
-                                    resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
+                                    resizeMode = ResizeMode.RemeasureToBounds,
                                     boundsTransform = { _, _ ->
                                         tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
                                     }
@@ -220,13 +221,16 @@ fun DetailsScreenContent(
                     ImageRequest
                         .Builder(LocalContext.current)
                         .data(movie.posterPath)
-                        .decoderFactory(SvgDecoder.Factory())
-                        .crossfade(true)
+                        .placeholderMemoryCacheKey(imageKey)
+                        .memoryCacheKey(imageKey)
                         .build(),
                 contentDescription = "Icon",
+                clipToBounds = true,
                 contentScale = ContentScale.Companion.Crop,
                 modifier =
                     Modifier
+                        .width(250.dp)
+                        .aspectRatio(0.65f)
                         .conditional(
                             condition = isPreview,
                             ifTrue = {
@@ -237,8 +241,8 @@ fun DetailsScreenContent(
                             animatedVisibilityScope = animatedVisibilityScope
                         ) { sharedTransitionScope, animatedVisibilityScope ->
                             with(sharedTransitionScope) {
-                                sharedElement(
-                                    state =
+                                sharedBounds(
+                                    sharedContentState =
                                         rememberSharedContentState(
                                             key =
                                                 SharedElementKey(
@@ -255,16 +259,14 @@ fun DetailsScreenContent(
                                     boundsTransform = { initialBounds, targetBounds ->
                                         tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
                                     },
-                                    placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
+                                    resizeMode = ResizeMode.RemeasureToBounds
                                 )
                             }
                         }.constrainAs(posterRef) {
                             top.linkTo(titleRef.bottom, 16.dp)
                             start.linkTo(parent.start)
                             end.linkTo(parent.end)
-                        }.width(250.dp)
-                        .aspectRatio(0.65f)
-                        .clip(TheMovieTheme.shapes.large)
+                        }.clip(TheMovieTheme.shapes.large)
             )
             Icon(
                 modifier =
