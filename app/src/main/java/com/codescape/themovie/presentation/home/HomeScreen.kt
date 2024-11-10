@@ -1,12 +1,12 @@
 package com.codescape.themovie.presentation.home
 
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.BoundsTransform
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Search
@@ -71,6 +70,8 @@ import com.codescape.themovie.presentation.components.MessageCard
 import com.codescape.themovie.presentation.home.component.MovieCard
 import com.codescape.themovie.presentation.home.preview.HomePreviewParametersProvider
 import com.codescape.themovie.presentation.modifier.sharedTransition
+import com.codescape.themovie.presentation.shared.LocalAnimatedVisibilityScope
+import com.codescape.themovie.presentation.shared.LocalSharedTransitionScope
 import com.codescape.themovie.presentation.shared.SharedElementKey
 import com.codescape.themovie.presentation.shared.SharedElementType
 import com.codescape.themovie.presentation.theme.TheMovieTheme
@@ -78,21 +79,17 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlin.time.Duration.Companion.milliseconds
 
-@OptIn(ExperimentalSharedTransitionApi::class, FlowPreview::class)
+@OptIn(FlowPreview::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: HomeViewModel,
-    onClickSearch: () -> Unit,
-    onClickMovie: (Movie, String) -> Unit
+    onClickSearch: () -> Unit = {},
+    onClickMovie: (Movie, String) -> Unit = { _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     HomeScreenContent(
         modifier = modifier,
-        sharedTransitionScope = sharedTransitionScope,
-        animatedVisibilityScope = animatedVisibilityScope,
         uiState = uiState,
         onClickSearch = onClickSearch,
         onClickMovie = onClickMovie
@@ -111,12 +108,12 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     modifier: Modifier = Modifier,
-    sharedTransitionScope: SharedTransitionScope? = null,
-    animatedVisibilityScope: AnimatedVisibilityScope? = null,
     uiState: HomeUiState,
     onClickSearch: () -> Unit = {},
     onClickMovie: (Movie, String) -> Unit
 ) {
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
     val movies = uiState.movies.collectAsLazyPagingItems()
     var currentItem by remember { mutableIntStateOf(0) }
     var backdropPath by remember { mutableStateOf("") }
@@ -201,22 +198,20 @@ fun HomeScreenContent(
                             color = TheMovieTheme.colors.text
                         )
                     }
-                    IconButton(
+                    Icon(
                         modifier =
                             Modifier
                                 .align(Alignment.CenterEnd)
-                                .padding(end = 24.dp),
-                        onClick =
-                            dropUnlessResumed {
-                                onClickSearch()
-                            },
-                        content = {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = stringResource(R.string.home_search),
-                                tint = Color.White
-                            )
-                        }
+                                .padding(end = 24.dp)
+                                .clickable(
+                                    onClick =
+                                        dropUnlessResumed {
+                                            onClickSearch()
+                                        }
+                                ),
+                        imageVector = Icons.Default.Search,
+                        contentDescription = stringResource(R.string.home_search),
+                        tint = Color.White
                     )
                 }
             }
@@ -279,6 +274,8 @@ fun HomeScreenContent(
                                             .fillMaxSize()
                                             .aspectRatio(0.65f)
                                             .clickable(
+                                                interactionSource = remember { MutableInteractionSource() },
+                                                indication = null,
                                                 onClick =
                                                     dropUnlessResumed {
                                                         onClickMovie(movie, "recent")
@@ -315,14 +312,10 @@ fun HomeScreenContent(
                                                                     )
                                                             ),
                                                         animatedVisibilityScope = animatedVisibilityScope,
-                                                        boundsTransform =
-                                                            BoundsTransform { initialBounds, targetBounds ->
-                                                                keyframes {
-                                                                    durationMillis = 1000
-                                                                    initialBounds at 0
-                                                                    targetBounds at 1000
-                                                                }
-                                                            }
+                                                        resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
+                                                        boundsTransform = { _, _ ->
+                                                            tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                                        }
                                                     )
                                                 }
                                             },
@@ -379,12 +372,13 @@ fun HomeScreenContent(
                                                 .fillMaxSize()
                                                 .aspectRatio(0.65f)
                                                 .clickable(
+                                                    interactionSource = remember { MutableInteractionSource() },
+                                                    indication = null,
                                                     onClick =
                                                         dropUnlessResumed {
                                                             onClickMovie(movie, "favorites")
                                                         }
-                                                ).maskClip(MaterialTheme.shapes.medium)
-                                                .animateItem(),
+                                                ).maskClip(MaterialTheme.shapes.medium),
                                         sharedTransitionScope = sharedTransitionScope,
                                         animatedVisibilityScope = animatedVisibilityScope,
                                         origin = "favorites",
@@ -415,14 +409,9 @@ fun HomeScreenContent(
                                                                         )
                                                                 ),
                                                             animatedVisibilityScope = animatedVisibilityScope,
-                                                            boundsTransform =
-                                                                BoundsTransform { initialBounds, targetBounds ->
-                                                                    keyframes {
-                                                                        durationMillis = 1000
-                                                                        initialBounds at 0
-                                                                        targetBounds at 1000
-                                                                    }
-                                                                },
+                                                            boundsTransform = { _, _ ->
+                                                                tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                                            },
                                                             renderInOverlayDuringTransition = true
                                                         )
                                                     }
@@ -449,7 +438,6 @@ fun HomeScreenContent(
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 fun HomeScreenContentPreview(

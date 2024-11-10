@@ -1,9 +1,8 @@
 package com.codescape.themovie.presentation.search
 
-import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -23,7 +22,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -50,15 +48,15 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.codescape.themovie.R
 import com.codescape.themovie.domain.model.Movie
 import com.codescape.themovie.presentation.home.component.MovieCard
+import com.codescape.themovie.presentation.shared.LocalAnimatedVisibilityScope
+import com.codescape.themovie.presentation.shared.LocalSharedTransitionScope
 import com.codescape.themovie.presentation.theme.TheMovieTheme
 import kotlinx.coroutines.FlowPreview
 
-@OptIn(ExperimentalSharedTransitionApi::class, FlowPreview::class)
+@OptIn(FlowPreview::class)
 @Composable
 fun SearchScreen(
     modifier: Modifier = Modifier,
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: SearchViewModel,
     onClickBack: () -> Unit = {},
     onClickMovie: (Movie, String) -> Unit
@@ -66,8 +64,6 @@ fun SearchScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     SearchScreenContent(
         modifier = modifier,
-        sharedTransitionScope = sharedTransitionScope,
-        animatedVisibilityScope = animatedVisibilityScope,
         uiState = uiState,
         onClickBack = onClickBack,
         onSearch = viewModel::search,
@@ -80,14 +76,14 @@ fun SearchScreen(
 @Composable
 fun SearchScreenContent(
     modifier: Modifier = Modifier,
-    sharedTransitionScope: SharedTransitionScope? = null,
-    animatedVisibilityScope: AnimatedVisibilityScope? = null,
     uiState: SearchUiState,
     onClickBack: () -> Unit = {},
     onSearch: (TextFieldValue) -> Unit = {},
     onClear: () -> Unit = {},
     onClickMovie: (Movie, String) -> Unit
 ) {
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     var isFocused by remember { mutableStateOf(false) }
@@ -112,19 +108,21 @@ fun SearchScreenContent(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(
-                    modifier = Modifier.padding(end = 16.dp),
-                    onClick =
-                        dropUnlessResumed {
-                            onClickBack()
-                        },
-                    content = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.search_back),
-                            tint = Color.White
-                        )
-                    }
+                Icon(
+                    modifier =
+                        Modifier
+                            .padding(end = 16.dp)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick =
+                                    dropUnlessResumed {
+                                        onClickBack()
+                                    }
+                            ),
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = stringResource(R.string.search_back),
+                    tint = Color.White
                 )
                 OutlinedTextField(
                     modifier =
@@ -158,18 +156,15 @@ fun SearchScreenContent(
                         )
                     },
                     trailingIcon = {
-                        IconButton(
-                            onClick = {
-                                onClear()
-                                focusManager.clearFocus()
-                            },
-                            content = {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = stringResource(R.string.search_clear),
-                                    tint = TheMovieTheme.colors.onOutline
-                                )
-                            }
+                        Icon(
+                            modifier =
+                                Modifier.clickable {
+                                    onClear()
+                                    focusManager.clearFocus()
+                                },
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = stringResource(R.string.search_clear),
+                            tint = TheMovieTheme.colors.onOutline
                         )
                     },
                     placeholder = {
@@ -205,16 +200,17 @@ fun SearchScreenContent(
                         .fillMaxSize()
                         .aspectRatio(0.65f)
                         .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
                             onClick =
                                 dropUnlessResumed {
-                                    onClickMovie(movie, "search")
+                                    onClickMovie(movie, "recent")
                                 }
                         ).clip(TheMovieTheme.shapes.medium)
                         .animateItem(),
                 sharedTransitionScope = sharedTransitionScope,
                 animatedVisibilityScope = animatedVisibilityScope,
-                origin = "search",
-                secondOrigin = "recent",
+                origin = "recent",
                 movie = movie
             )
         }

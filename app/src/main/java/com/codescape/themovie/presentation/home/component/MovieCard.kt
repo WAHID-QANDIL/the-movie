@@ -1,14 +1,19 @@
 package com.codescape.themovie.presentation.home.component
 
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.BoundsTransform
+import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.ExperimentalAnimationSpecApi
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -28,18 +33,31 @@ import com.codescape.themovie.presentation.shared.SharedElementKey
 import com.codescape.themovie.presentation.shared.SharedElementType
 import com.codescape.themovie.presentation.theme.TheMovieTheme
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+@OptIn(
+    ExperimentalSharedTransitionApi::class,
+    ExperimentalAnimationSpecApi::class,
+    ExperimentalMaterial3Api::class
+)
 @Composable
 fun MovieCard(
     modifier: Modifier = Modifier.Companion,
     sharedTransitionScope: SharedTransitionScope? = null,
     animatedVisibilityScope: AnimatedVisibilityScope? = null,
     origin: String = "",
-    secondOrigin: String? = null,
     movie: Movie
 ) {
     val isPreview = LocalInspectionMode.current
-    Box(modifier = modifier) {
+    val cornerSize =
+        animatedVisibilityScope?.transition?.animateDp(
+            label = "corner"
+        ) { exitEnter ->
+            when (exitEnter) {
+                EnterExitState.PreEnter -> 24.dp
+                EnterExitState.Visible -> 16.dp
+                EnterExitState.PostExit -> 16.dp
+            }
+        }
+    Box {
         AsyncImage(
             model =
                 ImageRequest
@@ -51,7 +69,7 @@ fun MovieCard(
             contentScale = ContentScale.Companion.Crop,
             contentDescription = "Icon",
             modifier =
-                Modifier.Companion
+                modifier
                     .conditional(
                         condition = isPreview,
                         ifTrue = {
@@ -73,45 +91,15 @@ fun MovieCard(
                                             )
                                     ),
                                 animatedVisibilityScope = animatedVisibilityScope,
-                                boundsTransform =
-                                    BoundsTransform { initialBounds, targetBounds ->
-                                        keyframes {
-                                            durationMillis = 1000
-                                            initialBounds at 0
-                                            targetBounds at 1000
-                                        }
-                                    }
+                                clipInOverlayDuringTransition =
+                                    OverlayClip(
+                                        RoundedCornerShape(cornerSize?.value ?: 16.dp)
+                                    ),
+                                boundsTransform = { initialBounds, targetBounds ->
+                                    tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                },
+                                placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
                             )
-                        }
-                    }.sharedTransition(
-                        sharedTransitionScope = sharedTransitionScope,
-                        animatedVisibilityScope = animatedVisibilityScope
-                    ) { sharedTransitionScope, animatedVisibilityScope ->
-                        with(sharedTransitionScope) {
-                            if (secondOrigin != null) {
-                                sharedElement(
-                                    state =
-                                        rememberSharedContentState(
-                                            key =
-                                                SharedElementKey(
-                                                    id = movie.id,
-                                                    origin = secondOrigin,
-                                                    type = SharedElementType.POSTER
-                                                )
-                                        ),
-                                    animatedVisibilityScope = animatedVisibilityScope,
-                                    boundsTransform =
-                                        BoundsTransform { initialBounds, targetBounds ->
-                                            keyframes {
-                                                durationMillis = 1000
-                                                initialBounds at 0
-                                                targetBounds at 1000
-                                            }
-                                        }
-                                )
-                            } else {
-                                this@sharedTransition
-                            }
                         }
                     }.fillMaxSize()
                     .clip(MaterialTheme.shapes.medium)

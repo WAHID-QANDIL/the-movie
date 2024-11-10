@@ -1,11 +1,15 @@
 package com.codescape.themovie.presentation.details
 
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.BoundsTransform
+import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.ExperimentalAnimationSpecApi
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,17 +17,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
@@ -51,17 +55,17 @@ import com.codescape.themovie.domain.model.Movie
 import com.codescape.themovie.presentation.details.preview.DetailsPreviewParametersProvider
 import com.codescape.themovie.presentation.modifier.conditional
 import com.codescape.themovie.presentation.modifier.sharedTransition
+import com.codescape.themovie.presentation.shared.LocalAnimatedVisibilityScope
+import com.codescape.themovie.presentation.shared.LocalSharedTransitionScope
 import com.codescape.themovie.presentation.shared.SharedElementKey
 import com.codescape.themovie.presentation.shared.SharedElementType
 import com.codescape.themovie.presentation.theme.TheMovieTheme
 import kotlinx.coroutines.FlowPreview
 
-@OptIn(ExperimentalSharedTransitionApi::class, FlowPreview::class)
+@OptIn(FlowPreview::class)
 @Composable
 fun DetailsScreen(
     modifier: Modifier = Modifier,
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: DetailsViewModel,
     movie: Movie,
     origin: String,
@@ -73,8 +77,6 @@ fun DetailsScreen(
     val isFavoriteMovie by viewModel.isFavoriteMovie.collectAsStateWithLifecycle()
     DetailsScreenContent(
         modifier = modifier,
-        sharedTransitionScope = sharedTransitionScope,
-        animatedVisibilityScope = animatedVisibilityScope,
         isFavoriteMovie = isFavoriteMovie,
         movie = movie,
         origin = origin,
@@ -89,12 +91,10 @@ fun DetailsScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalAnimationSpecApi::class)
 @Composable
 fun DetailsScreenContent(
     modifier: Modifier = Modifier,
-    sharedTransitionScope: SharedTransitionScope? = null,
-    animatedVisibilityScope: AnimatedVisibilityScope? = null,
     isFavoriteMovie: Boolean,
     movie: Movie,
     origin: String = "",
@@ -102,8 +102,20 @@ fun DetailsScreenContent(
     onClickFavorite: () -> Unit = {}
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
+        val sharedTransitionScope = LocalSharedTransitionScope.current
+        val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
         val isPreview = LocalInspectionMode.current
         val backgroundColor = TheMovieTheme.colors.background
+        val cornerSize =
+            animatedVisibilityScope?.transition?.animateDp(
+                label = "corner"
+            ) { exitEnter ->
+                when (exitEnter) {
+                    EnterExitState.PreEnter -> 0.dp
+                    EnterExitState.Visible -> 24.dp
+                    EnterExitState.PostExit -> 24.dp
+                }
+            }
         AsyncImage(
             model =
                 ImageRequest
@@ -148,25 +160,24 @@ fun DetailsScreenContent(
                     )
         ) {
             val (backRef, titleRef, posterRef, releaseDateRef, overviewRef, favoriteRef) = createRefs()
-            IconButton(
+            Icon(
                 modifier =
                     Modifier
                         .padding(end = 16.dp)
-                        .constrainAs(backRef) {
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick =
+                                dropUnlessResumed {
+                                    onClickBack()
+                                }
+                        ).constrainAs(backRef) {
                             top.linkTo(parent.top)
                             start.linkTo(parent.start)
                         },
-                onClick =
-                    dropUnlessResumed {
-                        onClickBack()
-                    },
-                content = {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                        contentDescription = stringResource(R.string.search_back),
-                        tint = Color.White
-                    )
-                }
+                imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                contentDescription = stringResource(R.string.search_back),
+                tint = Color.White
             )
             Text(
                 modifier =
@@ -191,14 +202,10 @@ fun DetailsScreenContent(
                                                 )
                                         ),
                                     animatedVisibilityScope = animatedVisibilityScope,
-                                    boundsTransform =
-                                        BoundsTransform { initialBounds, targetBounds ->
-                                            keyframes {
-                                                durationMillis = 1000
-                                                initialBounds at 0
-                                                targetBounds at 1000
-                                            }
-                                        }
+                                    resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
+                                    boundsTransform = { _, _ ->
+                                        tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                    }
                                 )
                             }
                         },
@@ -241,14 +248,14 @@ fun DetailsScreenContent(
                                                 )
                                         ),
                                     animatedVisibilityScope = animatedVisibilityScope,
-                                    boundsTransform =
-                                        BoundsTransform { initialBounds, targetBounds ->
-                                            keyframes {
-                                                durationMillis = 1000
-                                                initialBounds at 0
-                                                targetBounds at 1000
-                                            }
-                                        }
+                                    clipInOverlayDuringTransition =
+                                        OverlayClip(
+                                            RoundedCornerShape(cornerSize?.value ?: 24.dp)
+                                        ),
+                                    boundsTransform = { initialBounds, targetBounds ->
+                                        tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                    },
+                                    placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
                                 )
                             }
                         }.constrainAs(posterRef) {
@@ -259,28 +266,23 @@ fun DetailsScreenContent(
                         .aspectRatio(0.65f)
                         .clip(TheMovieTheme.shapes.large)
             )
-            IconButton(
+            Icon(
                 modifier =
                     Modifier
                         .constrainAs(favoriteRef) {
                             top.linkTo(parent.top)
                             end.linkTo(parent.end)
+                        }.clickable {
+                            onClickFavorite()
                         },
-                onClick = {
-                    onClickFavorite()
-                },
-                content = {
-                    Icon(
-                        imageVector =
-                            if (isFavoriteMovie) {
-                                Icons.Filled.Favorite
-                            } else {
-                                Icons.Outlined.FavoriteBorder
-                            },
-                        contentDescription = "Favorite",
-                        tint = TheMovieTheme.colors.error
-                    )
-                }
+                imageVector =
+                    if (isFavoriteMovie) {
+                        Icons.Filled.Favorite
+                    } else {
+                        Icons.Outlined.FavoriteBorder
+                    },
+                contentDescription = "Favorite",
+                tint = TheMovieTheme.colors.error
             )
             Text(
                 modifier =
@@ -308,7 +310,6 @@ fun DetailsScreenContent(
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 fun DetailsScreenContentPreview(
