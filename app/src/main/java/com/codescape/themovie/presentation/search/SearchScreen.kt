@@ -1,6 +1,8 @@
 package com.codescape.themovie.presentation.search
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -42,12 +44,16 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.codescape.themovie.R
 import com.codescape.themovie.domain.model.Movie
 import com.codescape.themovie.presentation.home.component.MovieCard
+import com.codescape.themovie.presentation.modifier.sharedTransition
+import com.codescape.themovie.presentation.search.preview.SearchPreviewParametersProvider
 import com.codescape.themovie.presentation.shared.LocalAnimatedVisibilityScope
 import com.codescape.themovie.presentation.shared.LocalSharedTransitionScope
 import com.codescape.themovie.presentation.theme.TheMovieTheme
@@ -111,7 +117,21 @@ fun SearchScreenContent(
                 Icon(
                     modifier =
                         Modifier
-                            .padding(end = 16.dp)
+                            .sharedTransition(
+                                sharedTransitionScope = sharedTransitionScope,
+                                animatedVisibilityScope = animatedVisibilityScope
+                            ) { sharedTransitionScope, animatedVisibilityScope ->
+                                with(sharedTransitionScope) {
+                                    sharedElement(
+                                        state =
+                                            rememberSharedContentState(key = "back"),
+                                        animatedVisibilityScope = animatedVisibilityScope,
+                                        boundsTransform = { _, _ ->
+                                            tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                        }
+                                    )
+                                }
+                            }.padding(end = 16.dp)
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
@@ -150,9 +170,25 @@ fun SearchScreenContent(
                     shape = RoundedCornerShape(8.dp),
                     leadingIcon = {
                         Icon(
+                            modifier =
+                                Modifier.sharedTransition(
+                                    sharedTransitionScope = sharedTransitionScope,
+                                    animatedVisibilityScope = animatedVisibilityScope
+                                ) { sharedTransitionScope, animatedVisibilityScope ->
+                                    with(sharedTransitionScope) {
+                                        sharedElement(
+                                            state =
+                                                rememberSharedContentState(key = "search"),
+                                            animatedVisibilityScope = animatedVisibilityScope,
+                                            boundsTransform = { _, _ ->
+                                                tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                            }
+                                        )
+                                    }
+                                },
                             imageVector = Icons.Default.Search,
                             contentDescription = stringResource(R.string.search_title),
-                            tint = TheMovieTheme.colors.onOutline
+                            tint = TheMovieTheme.colors.text
                         )
                     },
                     trailingIcon = {
@@ -164,7 +200,12 @@ fun SearchScreenContent(
                                 },
                             imageVector = Icons.Default.Clear,
                             contentDescription = stringResource(R.string.search_clear),
-                            tint = TheMovieTheme.colors.onOutline
+                            tint =
+                                if (uiState.search.text.isNotEmpty()) {
+                                    TheMovieTheme.colors.onOutline
+                                } else {
+                                    TheMovieTheme.colors.text
+                                }
                         )
                     },
                     placeholder = {
@@ -214,5 +255,21 @@ fun SearchScreenContent(
                 movie = movie
             )
         }
+    }
+}
+
+
+@Preview
+@Composable
+fun HomeScreenContentPreview(
+    @PreviewParameter(SearchPreviewParametersProvider::class)
+    uiState: SearchUiState
+) {
+    TheMovieTheme {
+        SearchScreenContent(
+            modifier = Modifier.fillMaxSize(),
+            uiState = uiState,
+            onClickMovie = { _, _ -> }
+        )
     }
 }

@@ -203,7 +203,23 @@ fun HomeScreenContent(
                             Modifier
                                 .align(Alignment.CenterEnd)
                                 .padding(end = 24.dp)
-                                .clickable(
+                                .sharedTransition(
+                                    sharedTransitionScope = sharedTransitionScope,
+                                    animatedVisibilityScope = animatedVisibilityScope
+                                ) { sharedTransitionScope, animatedVisibilityScope ->
+                                    with(sharedTransitionScope) {
+                                        sharedElement(
+                                            state =
+                                                rememberSharedContentState(key = "search"),
+                                            animatedVisibilityScope = animatedVisibilityScope,
+                                            boundsTransform = { _, _ ->
+                                                tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                            }
+                                        )
+                                    }
+                                }.clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
                                     onClick =
                                         dropUnlessResumed {
                                             onClickSearch()
@@ -218,11 +234,12 @@ fun HomeScreenContent(
             item(key = 2) {
                 Text(
                     modifier =
-                        Modifier.padding(
-                            top = 24.dp,
-                            start = 24.dp,
-                            end = 24.dp
-                        ),
+                        Modifier
+                            .padding(
+                                top = 24.dp,
+                                start = 24.dp,
+                                end = 24.dp
+                            ),
                     text = "Recent",
                     style = TheMovieTheme.typography.titleVeryLarge,
                     color = TheMovieTheme.colors.text

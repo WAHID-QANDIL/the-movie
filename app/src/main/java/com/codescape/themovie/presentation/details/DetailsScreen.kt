@@ -164,7 +164,21 @@ fun DetailsScreenContent(
             Icon(
                 modifier =
                     Modifier
-                        .padding(end = 16.dp)
+                        .sharedTransition(
+                            sharedTransitionScope = sharedTransitionScope,
+                            animatedVisibilityScope = animatedVisibilityScope
+                        ) { sharedTransitionScope, animatedVisibilityScope ->
+                            with(sharedTransitionScope) {
+                                sharedElement(
+                                    state =
+                                        rememberSharedContentState(key = "back"),
+                                    animatedVisibilityScope = animatedVisibilityScope,
+                                    boundsTransform = { _, _ ->
+                                        tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                    }
+                                )
+                            }
+                        }.padding(end = 16.dp)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
