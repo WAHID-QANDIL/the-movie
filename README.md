@@ -7,7 +7,7 @@ Example project for Android Bangkok 2024 GDG event (17 November 2024):
 [Android Bangkok 2024](https://gdg.community.dev/events/details/google-gdg-bangkok-presents-android-bangkok-2024/)
 
 ### 1. Screenshots
-<img src="screenshots/the-movie.gif" alt="Movies" width="358" height="796">
+<img src="screenshots/the-movie.gif" alt="Movies" width="272" height="604">
 
 ### 2. Architecture
 1. Clean architecture
