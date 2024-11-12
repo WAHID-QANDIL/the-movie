@@ -9,12 +9,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -40,7 +45,25 @@ fun AppNavigation(modifier: Modifier = Modifier) {
     SharedTransitionLayout {
         CompositionLocalProvider(LocalSharedTransitionScope provides this) {
             val navController = rememberNavController()
-            Scaffold(modifier = modifier) { paddingValues ->
+            Scaffold(
+                modifier = modifier,
+                floatingActionButton = {
+                    FloatingActionButton(
+                        modifier = Modifier.renderInSharedTransitionScopeOverlay(),
+                        onClick =
+                            dropUnlessResumed {
+                                navController.navigate(Screen.Search)
+                            },
+                        containerColor = TheMovieTheme.colors.outline,
+                        contentColor = TheMovieTheme.colors.text
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search"
+                        )
+                    }
+                }
+            ) { paddingValues ->
                 NavHost(
                     modifier =
                         Modifier
