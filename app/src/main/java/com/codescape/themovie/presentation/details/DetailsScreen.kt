@@ -110,12 +110,15 @@ fun DetailsScreenContent(
         val backgroundColor = TheMovieTheme.colors.background
         val cornerSize =
             animatedVisibilityScope?.transition?.animateDp(
-                label = "corner"
+                label = "corner",
+                transitionSpec = {
+                    tween(durationMillis = 2000, easing = LinearOutSlowInEasing)
+                }
             ) { exitEnter ->
                 when (exitEnter) {
                     EnterExitState.PreEnter -> 16.dp
                     EnterExitState.Visible -> 24.dp
-                    EnterExitState.PostExit -> 24.dp
+                    EnterExitState.PostExit -> 16.dp
                 }
             }
         val imageKey = remember { movie.id.toString() }
@@ -176,7 +179,7 @@ fun DetailsScreenContent(
                                         rememberSharedContentState(key = "back"),
                                     animatedVisibilityScope = animatedVisibilityScope,
                                     boundsTransform = { _, _ ->
-                                        tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                        tween(durationMillis = 2000, easing = LinearOutSlowInEasing)
                                     }
                                 )
                             }
@@ -217,7 +220,7 @@ fun DetailsScreenContent(
                                     animatedVisibilityScope = animatedVisibilityScope,
                                     resizeMode = ResizeMode.ScaleToBounds(),
                                     boundsTransform = { _, _ ->
-                                        tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                        tween(durationMillis = 2000, easing = LinearOutSlowInEasing)
                                     }
                                 )
                             }
@@ -273,7 +276,7 @@ fun DetailsScreenContent(
                                             RoundedCornerShape(cornerSize?.value ?: 24.dp)
                                         ),
                                     boundsTransform = { initialBounds, targetBounds ->
-                                        tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                        tween(durationMillis = 2000, easing = LinearOutSlowInEasing)
                                     },
                                     resizeMode = ResizeMode.ScaleToBounds(),
                                     enter = EnterTransition.None,

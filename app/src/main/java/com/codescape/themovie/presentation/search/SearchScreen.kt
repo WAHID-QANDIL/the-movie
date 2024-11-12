@@ -127,7 +127,7 @@ fun SearchScreenContent(
                                             rememberSharedContentState(key = "back"),
                                         animatedVisibilityScope = animatedVisibilityScope,
                                         boundsTransform = { _, _ ->
-                                            tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                            tween(durationMillis = 2000, easing = LinearOutSlowInEasing)
                                         }
                                     )
                                 }
@@ -181,7 +181,7 @@ fun SearchScreenContent(
                                                 rememberSharedContentState(key = "search"),
                                             animatedVisibilityScope = animatedVisibilityScope,
                                             boundsTransform = { _, _ ->
-                                                tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                                tween(durationMillis = 2000, easing = LinearOutSlowInEasing)
                                             }
                                         )
                                     }

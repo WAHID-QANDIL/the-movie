@@ -213,7 +213,7 @@ fun HomeScreenContent(
                                                 rememberSharedContentState(key = "search"),
                                             animatedVisibilityScope = animatedVisibilityScope,
                                             boundsTransform = { _, _ ->
-                                                tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                                tween(durationMillis = 2000, easing = LinearOutSlowInEasing)
                                             }
                                         )
                                     }
@@ -328,7 +328,7 @@ fun HomeScreenContent(
                                                         animatedVisibilityScope = animatedVisibilityScope,
                                                         resizeMode = ResizeMode.ScaleToBounds(),
                                                         boundsTransform = { _, _ ->
-                                                            tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                                            tween(durationMillis = 2000, easing = LinearOutSlowInEasing)
                                                         }
                                                     )
                                                 }.align(Alignment.CenterHorizontally)
@@ -426,7 +426,7 @@ fun HomeScreenContent(
                                                                 ),
                                                             animatedVisibilityScope = animatedVisibilityScope,
                                                             boundsTransform = { _, _ ->
-                                                                tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                                                tween(durationMillis = 2000, easing = LinearOutSlowInEasing)
                                                             },
                                                             renderInOverlayDuringTransition = true
                                                         )

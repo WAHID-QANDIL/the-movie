@@ -53,12 +53,15 @@ fun MovieCard(
     val isPreview = LocalInspectionMode.current
     val cornerSize =
         animatedVisibilityScope?.transition?.animateDp(
-            label = "corner"
+            label = "corner",
+            transitionSpec = {
+                tween(durationMillis = 2000, easing = LinearOutSlowInEasing)
+            }
         ) { exitEnter ->
             when (exitEnter) {
                 EnterExitState.PreEnter -> 24.dp
                 EnterExitState.Visible -> 16.dp
-                EnterExitState.PostExit -> 16.dp
+                EnterExitState.PostExit -> 24.dp
             }
         }
     Box {
@@ -102,7 +105,7 @@ fun MovieCard(
                                         RoundedCornerShape(cornerSize?.value ?: 16.dp)
                                     ),
                                 boundsTransform = { initialBounds, targetBounds ->
-                                    tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
+                                    tween(durationMillis = 2000, easing = LinearOutSlowInEasing)
                                 },
                                 resizeMode = ResizeMode.ScaleToBounds(),
                                 enter = EnterTransition.None,
