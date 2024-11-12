@@ -326,14 +326,13 @@ fun HomeScreenContent(
                                                                     )
                                                             ),
                                                         animatedVisibilityScope = animatedVisibilityScope,
-                                                        resizeMode = ResizeMode.RemeasureToBounds,
+                                                        resizeMode = ResizeMode.ScaleToBounds(),
                                                         boundsTransform = { _, _ ->
                                                             tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
                                                         }
                                                     )
-                                                }.fillMaxWidth()
+                                                }.align(Alignment.CenterHorizontally)
                                                     .padding(top = 4.dp)
-                                                    .maskClip(RectangleShape)
                                             },
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
@@ -394,7 +393,8 @@ fun HomeScreenContent(
                                                         dropUnlessResumed {
                                                             onClickMovie(movie, "favorites")
                                                         }
-                                                ).maskClip(MaterialTheme.shapes.medium),
+                                                ).maskClip(MaterialTheme.shapes.medium)
+                                                .animateItem(),
                                         sharedTransitionScope = sharedTransitionScope,
                                         animatedVisibilityScope = animatedVisibilityScope,
                                         origin = "favorites",

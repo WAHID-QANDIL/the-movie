@@ -2,9 +2,11 @@ package com.codescape.themovie.presentation.home.component
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.RemeasureToBounds
+import androidx.compose.animation.SharedTransitionScope.ResizeMode
 import androidx.compose.animation.core.ExperimentalAnimationSpecApi
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateDp
@@ -102,7 +104,9 @@ fun MovieCard(
                                 boundsTransform = { initialBounds, targetBounds ->
                                     tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
                                 },
-                                resizeMode = RemeasureToBounds
+                                resizeMode = ResizeMode.ScaleToBounds(),
+                                enter = EnterTransition.None,
+                                exit = ExitTransition.None
                             )
                         }
                     }.clip(MaterialTheme.shapes.medium)

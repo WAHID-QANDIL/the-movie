@@ -1,6 +1,8 @@
 package com.codescape.themovie.presentation.details
 
 import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope.ResizeMode
 import androidx.compose.animation.core.ExperimentalAnimationSpecApi
@@ -111,7 +113,7 @@ fun DetailsScreenContent(
                 label = "corner"
             ) { exitEnter ->
                 when (exitEnter) {
-                    EnterExitState.PreEnter -> 0.dp
+                    EnterExitState.PreEnter -> 16.dp
                     EnterExitState.Visible -> 24.dp
                     EnterExitState.PostExit -> 24.dp
                 }
@@ -197,11 +199,7 @@ fun DetailsScreenContent(
             Text(
                 modifier =
                     Modifier
-                        .constrainAs(titleRef) {
-                            top.linkTo(parent.top)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        }.sharedTransition(
+                        .sharedTransition(
                             sharedTransitionScope = sharedTransitionScope,
                             animatedVisibilityScope = animatedVisibilityScope
                         ) { sharedTransitionScope, animatedVisibilityScope ->
@@ -217,12 +215,16 @@ fun DetailsScreenContent(
                                                 )
                                         ),
                                     animatedVisibilityScope = animatedVisibilityScope,
-                                    resizeMode = ResizeMode.RemeasureToBounds,
+                                    resizeMode = ResizeMode.ScaleToBounds(),
                                     boundsTransform = { _, _ ->
                                         tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
                                     }
                                 )
                             }
+                        }.constrainAs(titleRef) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
                         },
                 text = movie.title,
                 style = TheMovieTheme.typography.titleVeryLarge,
@@ -273,7 +275,9 @@ fun DetailsScreenContent(
                                     boundsTransform = { initialBounds, targetBounds ->
                                         tween(durationMillis = 1000, easing = LinearOutSlowInEasing)
                                     },
-                                    resizeMode = ResizeMode.RemeasureToBounds
+                                    resizeMode = ResizeMode.ScaleToBounds(),
+                                    enter = EnterTransition.None,
+                                    exit = ExitTransition.None
                                 )
                             }
                         }.constrainAs(posterRef) {
